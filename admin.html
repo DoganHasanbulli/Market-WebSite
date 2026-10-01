@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<!--
+  admin.html - DH Market Admin Paneli
+  ------------------------------------
+  Bu dosya, market yöneticisi için dashboard ve CRUD arayüzünü sağlar.
+
+  Sekmeler:
+    1. Dashboard     : İstatistik kartları, düşük stok uyarıları, kategori dağılımı
+    2. Ürünler       : Ürün listesi (düzenle, sil, stok güncelle), yeni ürün ekle
+    3. Kullanıcılar  : Kayıtlı kullanıcı listesi
+    4. Kampanyalar   : Kampanya kartları ve slide reklam yönetimi (CRUD + toggle)
+
+  Bağımlılıklar:
+    - Tailwind CSS (CDN), Font Awesome, css/admin.css
+    - js/ortak/api.js, js/ortak/dom.js (ortak yardımcılar)
+    - js/admin/  altındaki bölüm modülleri (numara sırası önemlidir)
+    - Flask API: http://127.0.0.1:5000/api
+-->
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DH Market | Admin Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome İkonları -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Özel Admin CSS -->
+    <link rel="stylesheet" href="css/admin.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+        }
+        /* Cam efekti (Glassmorphism) için ekleme */
+        .glass {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="text-slate-200">
+
+    <div class="flex">
+        <!-- Sidebar (Opsiyonel ama profesyonel gösterir) -->
+        <aside class="w-64 min-h-screen bg-slate-900/50 border-r border-slate-800 p-6 hidden lg:block">
+            <div class="text-2xl font-bold text-blue-400 mb-10 flex items-center gap-2">
+                <i class="fas fa-store"></i> DH Market
+            </div>
+            <nav class="space-y-4">
+                <a href="#" id="nav-dashboard" onclick="sekmeyiGoster('dashboard'); return false;" class="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 text-blue-400 border-l-4 border-blue-500">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a href="#" id="nav-urunler" onclick="sekmeyiGoster('urunler'); return false;" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800 transition text-slate-400">
+                    <i class="fas fa-box"></i> Ürünler
+                </a>
+                <a href="#" id="nav-kullanicilar" onclick="sekmeyiGoster('kullanicilar'); return false;" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800 transition text-slate-400">
+                    <i class="fas fa-users"></i> Kullanıcılar
+                </a>
+                <a href="#" id="nav-kampanyalar" onclick="sekmeyiGoster('kampanyalar'); return false;" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800 transition text-slate-400">
+                    <i class="fas fa-bullhorn"></i> Kampanyalar
+                </a>
+                <div class="pt-10">
+                    <a href="index.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition text-slate-500">
+                        <i class="fas fa-sign-out-alt"></i> Mağazaya Dön
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Ana İçerik Alanı -->
+        <main class="flex-1 p-8">
+
+            <!-- ========================================== -->
+            <!-- DASHBOARD SEKMESİ -->
+            <!-- ========================================== -->
+            <div id="dashboard-sekmesi">
+                <header class="mb-10">
+                    <h1 class="text-3xl font-bold text-white tracking-tight">Yönetim Paneli</h1>
+                    <p class="text-slate-400">Hoş geldin Admin, marketin durumu bugün harika.</p>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass relative overflow-hidden group p-6 rounded-2xl transition-all hover:border-blue-500/50">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
+                        <h4 class="text-slate-400 text-sm font-medium">Toplam Ürün</h4>
+                        <p class="text-3xl font-bold text-white mt-2" id="dash-toplam">0</p>
+                        <span class="text-blue-400 text-xs flex items-center gap-1 mt-2">
+                            <i class="fas fa-box"></i> Envanterdeki ürün sayısı
+                        </span>
+                    </div>
+
+                    <div class="glass relative overflow-hidden group p-6 rounded-2xl transition-all hover:border-amber-500/50">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all"></div>
+                        <h4 class="text-slate-400 text-sm font-medium">Düşük Stok</h4>
+                        <p class="text-3xl font-bold text-amber-400 mt-2" id="dash-dusuk">0</p>
+                        <span class="text-amber-500/70 text-xs flex items-center gap-1 mt-2">
+                            <i class="fas fa-exclamation-triangle"></i> 5 ve altı stok
+                        </span>
+                    </div>
+
+                    <div class="glass relative overflow-hidden group p-6 rounded-2xl transition-all hover:border-emerald-500/50">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
+                        <h4 class="text-slate-400 text-sm font-medium">Toplam Kalori</h4>
+                        <p class="text-3xl font-bold text-emerald-400 mt-2" id="dash-kalori">0</p>
+                        <span class="text-emerald-400 text-xs flex items-center gap-1 mt-2">
+                            <i class="fas fa-calculator"></i> Envanter Geneli
+                        </span>
+                    </div>
+
+                    <div class="glass relative overflow-hidden group p-6 rounded-2xl transition-all hover:border-purple-500/50">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all"></div>
+                        <h4 class="text-slate-400 text-sm font-medium">Envanter Değeri</h4>
+                        <p class="text-3xl font-bold text-purple-400 mt-2" id="dash-deger">0 TL</p>
+                        <span class="text-purple-400 text-xs flex items-center gap-1 mt-2">
+                            <i class="fas fa-lira-sign"></i> Fiyat x Stok toplamı
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Dashboard Alt Bölümleri -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                    <!-- Düşük Stok Uyarıları -->
+                    <div class="glass p-6 rounded-2xl">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-amber-400"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Düşük Stok Uyarıları</h3>
+                        </div>
+                        <div id="dash-dusuk-stok-listesi" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                            <p class="text-slate-500 text-sm">Yükleniyor...</p>
+                        </div>
+                    </div>
+
+                    <!-- Kategori Dağılımı -->
+                    <div class="glass p-6 rounded-2xl">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-pie text-blue-400"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Kategori Dağılımı</h3>
+                        </div>
+                        <div id="dash-kategori-dagilimi" class="space-y-3">
+                            <p class="text-slate-500 text-sm">Yükleniyor...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Son Eklenen Ürünler -->
+                <div class="glass p-6 rounded-2xl mt-8">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-emerald-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Son Eklenen Ürünler</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-300">
+                            <thead class="bg-slate-800/60 text-slate-400 uppercase text-xs">
+                                <tr>
+                                    <th class="px-4 py-3 rounded-l-lg">Ürün</th>
+                                    <th class="px-4 py-3">Kategori</th>
+                                    <th class="px-4 py-3">Fiyat</th>
+                                    <th class="px-4 py-3 rounded-r-lg">Stok</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dash-son-urunler" class="divide-y divide-slate-700/30">
+                                <!-- API'den doldurulacak -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- ÜRÜNLER SEKMESİ -->
+            <!-- ========================================== -->
+            <div id="urunler-sekmesi" class="hidden">
+                <header class="flex justify-between items-center mb-10">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white tracking-tight">Ürün Yönetimi</h1>
+                        <p class="text-slate-400">Stokları düzenle, yeni ürün ekle veya mevcut ürünleri sil.</p>
+                    </div>
+                    <button onclick="formuAc()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Yeni Ürün Ekle
+                    </button>
+                </header>
+
+                <!-- Yeni Ürün Ekleme Formu -->
+                <section id="yeni-urun-formu" class="glass p-6 rounded-2xl mb-10 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-white">Yeni Ürün Ekle</h2>
+                        <button onclick="formuKapat()" class="text-slate-400 hover:text-white">&times;</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input id="yeni-ad" type="text" placeholder="Ürün Adı" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="yeni-kategori" type="text" placeholder="Kategori" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="yeni-fiyat" type="number" step="0.01" placeholder="Fiyat (TL)" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="yeni-stok" type="number" placeholder="Stok Adedi" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="yeni-kalori" type="number" placeholder="Kalori" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="yeni-resim" type="text" placeholder="Resim URL" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="yeni-aciklama" type="text" placeholder="Açıklama" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="yeni-karbonhidrat" type="text" placeholder="Karbonhidrat (örn: 14g)" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="yeni-yag" type="text" placeholder="Yağ (örn: 0.2g)" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="yeni-agirlik" type="text" placeholder="Ağırlık (örn: 150g)" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="flex gap-3 mt-4 flex-wrap">
+                        <button onclick="urunEkle()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold transition-all">
+                            <i class="fas fa-plus mr-2"></i> Ürünü Kaydet
+                        </button>
+                        <button onclick="aiIleDoldur()" class="bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-xl font-semibold transition-all">
+                            <i class="fas fa-robot mr-2"></i> AI ile Otomatik Doldur
+                        </button>
+                    </div>
+                    <p id="ai-durum" class="text-sm text-slate-400 mt-2 hidden"></p>
+                </section>
+
+                <!-- Ürün Düzenleme Formu -->
+                <section id="urun-duzenle-formu" class="glass p-6 rounded-2xl mb-10 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-white">Ürün Düzenle</h2>
+                        <button onclick="urunDuzenleKapat()" class="text-slate-400 hover:text-white">&times;</button>
+                    </div>
+                    <input type="hidden" id="duzenle-urun-id">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input id="duzenle-ad" type="text" placeholder="Ürün Adı" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="duzenle-kategori" type="text" placeholder="Kategori" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="duzenle-fiyat" type="number" step="0.01" placeholder="Fiyat (TL)" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="duzenle-stok" type="number" placeholder="Stok Adedi" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="duzenle-kalori" type="number" placeholder="Kalori" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="duzenle-resim" type="text" placeholder="Resim URL" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="duzenle-aciklama" type="text" placeholder="Açıklama" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="duzenle-karbonhidrat" type="text" placeholder="Karbonhidrat (örn: 14g)" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="duzenle-yag" type="text" placeholder="Yağ (örn: 0.2g)" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="duzenle-agirlik" type="text" placeholder="Ağırlık (örn: 150g)" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="flex gap-3 mt-4">
+                        <button onclick="urunGuncelle()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold transition-all">
+                            <i class="fas fa-save mr-2"></i> Değişiklikleri Kaydet
+                        </button>
+                        <button onclick="urunDuzenleKapat()" class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-3 rounded-xl font-semibold transition-all">
+                            İptal
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Ürün Yönetimi Tablo Bölümü -->
+                <section id="admin-panel">
+                    <div class="flex items-center gap-4 mb-6">
+                        <h2 class="text-xl font-bold text-white">Ürün Listesi</h2>
+                        <div class="h-[1px] flex-1 bg-slate-800"></div>
+                    </div>
+
+                    <div class="glass rounded-2xl overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-300">
+                                <thead class="bg-slate-800/80 text-slate-200 uppercase text-xs">
+                                    <tr>
+                                        <th class="px-6 py-4">Ürün</th>
+                                        <th class="px-6 py-4">Kategori</th>
+                                        <th class="px-6 py-4">Fiyat</th>
+                                        <th class="px-6 py-4">Stok</th>
+                                        <th class="px-6 py-4 text-center">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="urun-tablosu" class="divide-y divide-slate-700/50">
+                                    <!-- API'den doldurulacak -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="urun-yok-mesaji" class="hidden p-8 text-center text-slate-500">
+                            Henüz ürün eklenmemiş.
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- KULLANICILAR SEKMESİ -->
+            <!-- ========================================== -->
+            <div id="kullanicilar-sekmesi" class="hidden">
+                <header class="mb-10">
+                    <h1 class="text-3xl font-bold text-white tracking-tight">Kullanıcılar</h1>
+                    <p class="text-slate-400">Kayıtlı kullanıcıları görüntüle.</p>
+                </header>
+
+                <div class="glass rounded-2xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-300">
+                            <thead class="bg-slate-800/80 text-slate-200 uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4">ID</th>
+                                    <th class="px-6 py-4">Kullanıcı Adı</th>
+                                    <th class="px-6 py-4">E-posta</th>
+                                    <th class="px-6 py-4">Kayıt Tarihi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kullanici-tablosu" class="divide-y divide-slate-700/50">
+                                <!-- API'den doldurulacak -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="kullanici-yok-mesaji" class="hidden p-8 text-center text-slate-500">
+                        Henüz kullanıcı bulunmamaktadır.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- KAMPANYALAR SEKMESİ -->
+            <!-- ========================================== -->
+            <div id="kampanyalar-sekmesi" class="hidden">
+                <header class="flex justify-between items-center mb-10">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white tracking-tight">Kampanya Yönetimi</h1>
+                        <p class="text-slate-400">Kampanya kartları ve slide reklamlarını ekle, düzenle veya sil.</p>
+                    </div>
+                    <button onclick="kampanyaFormuAc()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Yeni Kampanya / Reklam
+                    </button>
+                </header>
+
+                <!-- Kampanya Ekleme Formu -->
+                <section id="kampanya-formu" class="glass p-6 rounded-2xl mb-10 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-white">Yeni Kampanya / Slide Reklam</h2>
+                        <button onclick="kampanyaFormuKapat()" class="text-slate-400 hover:text-white">&times;</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input id="kampanya-baslik" type="text" placeholder="Başlık *" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="kampanya-resim" type="text" placeholder="Resim URL *" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <select id="kampanya-tur" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500">
+                            <option value="card">Kampanya Kartı (Ana Sayfa)</option>
+                            <option value="slide">Slide Reklam (Slider)</option>
+                        </select>
+                        <input id="kampanya-etiket" type="text" placeholder="Etiket (örn: İNDİRİM, 2 AL 1 ÖDE)" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <select id="kampanya-etiket-renk" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500">
+                            <option value="mavi">Mavi Etiket</option>
+                            <option value="yesil">Yeşil Etiket</option>
+                            <option value="turuncu">Turuncu Etiket</option>
+                            <option value="mor">Mor Etiket</option>
+                        </select>
+                        <input id="kampanya-tarih" type="text" placeholder="Tarih metni (örn: 5 Mayıs - 12 Mayıs)" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <textarea id="kampanya-aciklama" placeholder="Açıklama" rows="3" class="md:col-span-2 bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"></textarea>
+                    </div>
+                    <button onclick="kampanyaKaydet()" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold transition-all w-full md:w-auto">
+                        <i class="fas fa-plus mr-2"></i> Kaydet
+                    </button>
+                </section>
+
+                <!-- Kampanya Düzenleme Formu -->
+                <section id="kampanya-duzenle-formu" class="glass p-6 rounded-2xl mb-10 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-white">Kampanya Düzenle</h2>
+                        <button onclick="kampanyaDuzenleKapat()" class="text-slate-400 hover:text-white">&times;</button>
+                    </div>
+                    <input type="hidden" id="duzenle-kampanya-id">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input id="duzenle-kampanya-baslik" type="text" placeholder="Başlık *" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <input id="duzenle-kampanya-resim" type="text" placeholder="Resim URL *" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <select id="duzenle-kampanya-tur" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500">
+                            <option value="card">Kampanya Kartı (Ana Sayfa)</option>
+                            <option value="slide">Slide Reklam (Slider)</option>
+                        </select>
+                        <input id="duzenle-kampanya-etiket" type="text" placeholder="Etiket (örn: İNDİRİM, 2 AL 1 ÖDE)" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <select id="duzenle-kampanya-etiket-renk" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500">
+                            <option value="mavi">Mavi Etiket</option>
+                            <option value="yesil">Yeşil Etiket</option>
+                            <option value="turuncu">Turuncu Etiket</option>
+                            <option value="mor">Mor Etiket</option>
+                        </select>
+                        <input id="duzenle-kampanya-tarih" type="text" placeholder="Tarih metni (örn: 5 Mayıs - 12 Mayıs)" class="bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                        <textarea id="duzenle-kampanya-aciklama" placeholder="Açıklama" rows="3" class="md:col-span-2 bg-slate-800 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="flex gap-3 mt-4">
+                        <button onclick="kampanyaGuncelle()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold transition-all">
+                            <i class="fas fa-save mr-2"></i> Değişiklikleri Kaydet
+                        </button>
+                        <button onclick="kampanyaDuzenleKapat()" class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-3 rounded-xl font-semibold transition-all">
+                            İptal
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Kampanya Listesi -->
+                <section>
+                    <div class="flex items-center gap-4 mb-6">
+                        <h2 class="text-xl font-bold text-white">Tüm Kampanyalar ve Reklamlar</h2>
+                        <div class="h-[1px] flex-1 bg-slate-800"></div>
+                    </div>
+                    <div class="glass rounded-2xl overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-300">
+                                <thead class="bg-slate-800/80 text-slate-200 uppercase text-xs">
+                                    <tr>
+                                        <th class="px-6 py-4">Görsel</th>
+                                        <th class="px-6 py-4">Başlık</th>
+                                        <th class="px-6 py-4">Tür</th>
+                                        <th class="px-6 py-4">Etiket</th>
+                                        <th class="px-6 py-4">Durum</th>
+                                        <th class="px-6 py-4 text-center">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kampanya-tablosu" class="divide-y divide-slate-700/50">
+                                    <!-- API'den doldurulacak -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="kampanya-yok-mesaji" class="hidden p-8 text-center text-slate-500">
+                            Henüz kampanya eklenmemiş.
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ADMIN PANELİ JAVASCRIPT DOSYALARI        -->
+    <!-- Sıra: ortak yardımcılar → bölüm          -->
+    <!-- modülleri → sekme yönetimi/başlatma.     -->
+    <!-- ========================================== -->
+    <script src="js/ortak/api.js"></script>            <!-- API adresi + escapeHtml -->
+    <script src="js/ortak/dom.js"></script>            <!-- Form okuma/yazma yardımcıları -->
+    <script src="js/admin/10-urunler.js"></script>     <!-- Ürün CRUD + AI doldurma -->
+    <script src="js/admin/20-kampanya.js"></script>    <!-- Kampanya/reklam CRUD + toggle -->
+    <script src="js/admin/30-kullanicilar.js"></script> <!-- Kullanıcı listesi -->
+    <script src="js/admin/40-dashboard.js"></script>    <!-- İstatistikler ve grafikler -->
+    <script src="js/admin/90-baslat.js"></script>      <!-- Sekme yönetimi + başlatma -->
+</body>
+</html>

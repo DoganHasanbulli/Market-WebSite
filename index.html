@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<!--
+  index.html - DH Market Ana Sayfa (Müşteri Arayüzü)
+  -----------------------------------------------------
+  Bu dosya, market uygulamasının ana sayfasıdır. Aşağıdaki bölümleri içerir:
+
+  Bölümler:
+    1. Navbar          : Logo, adres seçici dropdown, giriş/kayıt butonları, arama
+    2. Kategori Yan Menü: Ürünleri kategoriye göre filtreleme
+    3. Slider          : Kampanya slide reklamları (API'den dinamik)
+    4. Kampanya Kartları: Aktif kampanyalar (API'den dinamik)
+    5. Ürün Grid       : Tüm ürünler API'den çekilerek dinamik doldurulur
+    6. Sepet Paneli    : Sağdan açılan alışveriş sepeti
+    7. Modallar        : Login, Kayıt, Şifremi Unuttum, Adres Ekleme, Ödeme
+
+  API Bağlantısı: js/ortak/api.js içindeki API_URL üzerinden
+                   http://127.0.0.1:5000/api
+
+  Dosya sırası önemlidir:
+    - CSS: Aşağıdaki stil dosyaları numara sırasına göre yüklenir.
+           CSS özgüllüğü (cascade) bu sıraya göre çalışır.
+    - JS : Önce ortak yardımcılar, sonra bölüm modülleri,
+           en son "99-baslat.js" uygulamayı başlatır.
+-->
+<html lang="tr">
+<!-- Sayfa dilini Türkçe olarak ayarlar -->
+<head>
+    <meta charset="UTF-8">
+    <!-- UTF-8 karakter setiyle Türkçe karakterleri destekler -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Mobil cihazlarda ekrana sığdırmayı ve yakınlaştırmayı ayarlar -->
+    <title>DH MARKET WEB</title>
+    <!-- Tarayıcı sekmesinde görünen başlık -->
+
+    <!-- ========================================== -->
+    <!-- DIŞ STİL DOSYALARI (numara sırası önemli) -->
+    <!-- ========================================== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome ikonları (harita, kilit, arama ikonları) -->
+
+    <link rel="stylesheet" href="css/index/01-temel.css">          <!-- Sayfa temeli -->
+    <link rel="stylesheet" href="css/index/02-navbar.css">        <!-- Üst menü + arama -->
+    <link rel="stylesheet" href="css/index/03-urunler.css">        <!-- Ürün kartları -->
+    <link rel="stylesheet" href="css/index/04-icerik-duzeni.css">  <!-- Kategori menüsü -->
+    <link rel="stylesheet" href="css/index/05-slider.css">        <!-- Slaytlar -->
+    <link rel="stylesheet" href="css/index/06-urun-paneli.css">   <!-- Ürün detay paneli -->
+    <link rel="stylesheet" href="css/index/07-footer.css">        <!-- Alt bilgi -->
+    <link rel="stylesheet" href="css/index/08-sepet.css">          <!-- Sepet paneli -->
+    <link rel="stylesheet" href="css/index/09-modal.css">          <!-- Modal + formlar -->
+    <link rel="stylesheet" href="css/index/10-kampanya.css">      <!-- Kampanya kartları -->
+    <link rel="stylesheet" href="css/index/11-adres.css">         <!-- Adres dropdown -->
+    <link rel="stylesheet" href="css/index/12-odeme.css">         <!-- Ödeme modalı -->
+</head>
+<body>
+
+<!-- ========================================== -->
+<!-- ÜST NAVİGASYON ÇUBUĞU -->
+<!-- Sayfanın en üstünde sabit duran menü barı -->
+<!-- ========================================== -->
+<nav class="navbar">
+    <!-- Sayfa başlığındaki navigasyon çubuğu -->
+    <div class="nav-kutusu">
+        <!-- Navbar içeriğini ortalayan ve sınırlayan kutu -->
+        <div class="logo">DH <span>MARKET</span></div>
+        <!-- Site logosu; span ile "MARKET" mavi renkte görünür -->
+
+        <!-- Adres Seçici Dropdown -->
+        <div class="adres-secici" id="adres-secici-alani">
+            <button onclick="adresDropdownAc()" class="adres-btn">
+                <i class="fas fa-map-marker-alt"></i>
+                <span id="secili-adres-metni">Adres Seç</span>
+                <i class="fas fa-chevron-down" style="font-size:0.7rem;margin-left:4px;"></i>
+            </button>
+            <div id="adres-dropdown" class="adres-dropdown hidden">
+                <div id="adres-listesi">
+                    <p class="adres-bos">Henüz adres eklenmemiş.</p>
+                </div>
+                <div class="adres-dropdown-alt">
+                    <button onclick="adresModalAc()" class="adres-ekle-btn">
+                        <i class="fas fa-plus"></i> Yeni Adres Ekle
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Arama Kutusu -->
+        <div class="arama-kutusu">
+            <!-- Kullanıcının ürün araması yaptığı grup -->
+            <i class="fas fa-search arama-ikon"></i>
+            <!-- Arama ikonu (Font Awesome kütüphanesi) -->
+            <input type="text" id="arama-cubugu" placeholder="Ürün veya kategori ara...">
+            <!-- Metin girişi; placeholder kullanıcıya ipucu verir -->
+            <div class="odak-izgi"></div>
+            <!-- Input odaklanınca beliren mavi animasyon çizgisi -->
+        </div>
+
+        <!-- Sağ Linkler ve Sepet -->
+        <div class="nav-linkler">
+            <!-- Menünün sağ tarafındaki bağlantıları yan yana dizer -->
+            <a href="#" onclick="scrollToSection('ana-icerik'); return false;">Ana Sayfa</a>
+            <!-- Tıklandığında ana içerik alanına kaydırma yapar -->
+            <a href="#" onclick="scrollToSection('kampanyalar-bolumu'); return false;">Kampanyalar</a>
+            <!-- Kampanyalar bölümüne yumuşak kaydırma yapar -->
+            <a href="#" class="giris-btn" onclick="loginModalAc(); return false;">Giriş Yap</a>
+            <!-- Login modal penceresini açar -->
+            <div class="sepet-ikon-kutusu" onclick="sepetiAc()">
+                <!-- Sepet panelini açan tıklanabilir alan -->
+                🛒 <span id="sepet-sayi-badge">0</span>
+                <!-- Sepet emojisi ve ürün sayısını gösteren kırmızı rozet -->
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+<!-- ========================================== -->
+<!-- ANA İÇERİK ALANI (Sol Menü + Sağ İçerik) -->
+<!-- ========================================== -->
+<section class="ana-icerik-alani" id="ana-icerik">
+    <!-- Sayfa içeriğinin ana kapsayıcısı; id ile kaydırma hedefi oluşturur -->
+    
+    <!-- SOL SÜTUN: Kategoriler -->
+    <aside class="kategori-kutusu">
+        <!-- Sayfa kaydırıldığında sabit kalan yan menü (sticky) -->
+        <h4>Kategoriler</h4>
+        <!-- Kategori listesi başlığı -->
+        <button class="kat-btn aktif" onclick="kategoriFiltrele('Tümü', this)">Tümü</button>
+        <!-- Varsayılan olarak aktif olan "tüm ürünler" filtresi -->
+        <button class="kat-btn" onclick="kategoriFiltrele('Meyve', this)">Meyveler</button>
+        <!-- Meyve kategorisini filtrelemek için buton -->
+        <button class="kat-btn" onclick="kategoriFiltrele('Atıştırmalık', this)">Atıştırmalıklar</button>
+        <!-- Atıştırmalık kategorisi filtresi -->
+        <button class="kat-btn" onclick="kategoriFiltrele('İçecek', this)">İçecekler</button>
+        <!-- İçecek kategorisi filtresi -->
+    </aside>
+
+    <!-- SAĞ SÜTUN: Slider, Kampanyalar ve Ürünler -->
+    <div class="icerik-kolonu">
+        <!-- Sağ tarafın dikey düzen kaplayıcısı -->
+        
+        <!-- Slider -->
+        <div class="slider-alanı">
+            <div class="slider-wrapper" id="slider">
+                <!-- JS ile API'den doldurulacak -->
+            </div>
+            <button class="slider-btn geri" onclick="slaytDegistir(-1)">❮</button>
+            <button class="slider-btn ileri" onclick="slaytDegistir(1)">❯</button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- KAMPANYALAR BÖLÜMÜ -->
+        <!-- Tıklanabilir kartlar halinde aktif kampanyalar -->
+        <!-- ========================================== -->
+        <section class="kampanyalar-bolumu" id="kampanyalar-bolumu">
+            <!-- Kampanyaların grid düzeninde listelendiği alan -->
+            <h2 class="bolum-baslik">🔥 Aktif Kampanyalar</h2>
+            <!-- Bölüm ana başlığı -->
+            <div class="kampanya-grid">
+                <!-- Kampanya kartlarını ızgara yapısında tutar -->
+                
+                <!-- Kampanya Kartı 1: Meyve İndirimi -->
+                <div class="kampanya-karti" onclick="kampanyaDetay('meyve30')">
+                    <!-- Tıklanabilir kampanya kartı; JS fonksiyonuna ID gönderir -->
+                    <div class="kampanya-resim" style="background-image: url('https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400');"></div>
+                    <!-- Kartın üst kısmındaki arka plan resmi -->
+                    <div class="kampanya-icerik">
+                        <!-- Kartın metin içeriği alanı -->
+                        <span class="kampanya-etiket">İNDİRİM</span>
+                        <!-- Kampanya türünü belirten etiket -->
+                        <h3>Taze Meyvelerde %30</h3>
+                        <!-- Kampanya başlığı -->
+                        <p>Sezonun en taze meyvelerinde büyük indirim! Elma, portakal, muz ve daha fazlası.</p>
+                        <!-- Kampanya açıklaması -->
+                        <div class="kampanya-alt">
+                            <!-- Kartın alt bilgi satırı -->
+                            <span class="kampanya-tarih">5 Mayıs - 12 Mayıs</span>
+                            <!-- Kampanyanın geçerlilik süresi -->
+                            <button class="kampanya-btn">Keşfet</button>
+                            <!-- Kullanıcıyı harekete geçiren buton -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kampanya Kartı 2: 2 Al 1 Öde -->
+                <div class="kampanya-karti" onclick="kampanyaDetay('icecek2al1')">
+                    <div class="kampanya-resim" style="background-image: url('https://images.unsplash.com/photo-1622483767028-3f66f32a86d?w=400');"></div>
+                    <div class="kampanya-icerik">
+                        <span class="kampanya-etiket etiket-yesil">2 AL 1 ÖDE</span>
+                        <h3>İçeceklerde 2 Al 1 Öde</h3>
+                        <p>Tüm gazlı içecekler ve meyve sularında geçerli kampanya.</p>
+                        <div class="kampanya-alt">
+                            <span class="kampanya-tarih">Sınırlı Süre</span>
+                            <button class="kampanya-btn">Keşfet</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kampanya Kartı 3: Atıştırmalık İndirimi -->
+                <div class="kampanya-karti" onclick="kampanyaDetay('atistirmalik20')">
+                    <div class="kampanya-resim" style="background-image: url('https://images.unsplash.com/photo-1566478989037-eb18f1d7b578?w=400');"></div>
+                    <div class="kampanya-icerik">
+                        <span class="kampanya-etiket etiket-turuncu">FIRSAT</span>
+                        <h3>Atıştırmalıklarda %20</h3>
+                        <p>Cips, kuruyemiş ve çikolatalarda kaçırılmayacak fırsat.</p>
+                        <div class="kampanya-alt">
+                            <span class="kampanya-tarih">Hafta Sonuna Kadar</span>
+                            <button class="kampanya-btn">Keşfet</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kampanya Kartı 4: Yeni Üye İndirimi -->
+                <div class="kampanya-karti" onclick="kampanyaDetay('yeniuye')">
+                    <div class="kampanya-resim" style="background-image: url('https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=400');"></div>
+                    <div class="kampanya-icerik">
+                        <span class="kampanya-etiket etiket-mor">YENİ ÜYE</span>
+                        <h3>İlk Siparişe 50 TL İndirim</h3>
+                        <p>Üye olan herkese ilk alışverişlerinde anında 50 TL kazanın.</p>
+                        <div class="kampanya-alt">
+                            <span class="kampanya-tarih">Süresiz</span>
+                            <button class="kampanya-btn">Hemen Üye Ol</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ÜRÜNLER ALANI (JS ile doldurulur) -->
+        <!-- ========================================== -->
+        <div class="urunler-kutusu">
+            <!-- JavaScript'in ürün kartlarını render ettiği kapsayıcı -->
+        </div>
+
+    </div>
+</section>
+
+<!-- ========================================== -->
+<!-- FOOTER (Site Alt Bilgisi) -->
+<!-- ========================================== -->
+<footer class="site-footer">
+    <!-- Sayfanın alt bilgi bölümü -->
+    <div class="footer-kutusu">
+        <!-- Footer içeriklerini yayar ve ortalar -->
+        <div class="footer-bolum">
+            <!-- Hakkımızda sütunu -->
+            <h3>DH <span>MARKET</span></h3>
+            <!-- Footer logosu -->
+            <p>2026 yılından beri en taze ürünleri en uygun fiyatlarla kapınıza getiriyoruz.</p>
+            <!-- Firma tanıtım metni -->
+        </div>
+        <div class="footer-bolum">
+            <!-- Hızlı linkler sütunu -->
+            <h4>Hızlı Linkler</h4>
+            <ul>
+                <li><a href="#">Hakkımızda</a></li>
+                <!-- Hakkımızda sayfası bağlantısı -->
+                <li><a href="#">Teslimat Bilgileri</a></li>
+                <!-- Teslimat bilgileri sayfası -->
+                <li><a href="#">İade Koşulları</a></li>
+                <!-- İade koşulları sayfası -->
+            </ul>
+        </div>
+        <div class="footer-bolum">
+            <!-- İletişim sütunu -->
+            <h4>İletişim</h4>
+            <p>📍 Yenierenköy, Kuzey Kıbrıs</p>
+            <!-- Adres bilgisi -->
+            <p>📞 0888 888 88 88</p>
+            <!-- Telefon numarası -->
+            <p>✉️ destek@dhmarket.com</p>
+            <!-- E-posta adresi -->
+        </div>
+    </div>
+    <div class="footer-alt">
+        <!-- Telif hakkı satırı -->
+        <p>&copy; 2026 DH Market Web Projesi - Tüm Hakları Saklıdır.</p>
+    </div>
+</footer>
+
+<!-- ========================================== -->
+<!-- ÜRÜN DETAY PANELİ (Sağdan kayan) -->
+<!-- ========================================== -->
+<div id="urun-detay-paneli" class="detay-paneli">
+    <!-- Tıklanan ürünün detaylarını sağdan açan panel -->
+    <button class="kapat-btn" onclick="panelKapat()">×</button>
+    <!-- Paneli kapatma butonu -->
+    <div class="panel-icerik">
+        <!-- Panel içindeki bilgiler -->
+        <img id="panel-resim" src="" alt="">
+        <!-- Ürün resmi (JS ile doldurulur) -->
+        <h2 id="panel-baslik">Ürün Adı</h2>
+        <!-- Ürün adı (JS ile doldurulur) -->
+        <p id="panel-aciklama">Ürün hakkında kısa bilgi buraya gelecek.</p>
+        <!-- Ürün açıklaması (JS ile doldurulur) -->
+        
+        <div class="besin-degerleri">
+            <!-- Besin değerleri tablosu -->
+            <h4>Besin Değerleri (100g için)</h4>
+            <div class="deger-tablosu">
+                <!-- İki sütunlu grid yapı -->
+                <div class="deger-item"><span>Kalori:</span> <strong id="val-kalori">-</strong></div>
+                <div class="deger-item"><span>Karbonhidrat:</span> <strong id="val-karbonhidrat">-</strong></div>
+                <div class="deger-item"><span>Yağ:</span> <strong id="val-yag">-</strong></div>
+                <div class="deger-item"><span>Ağırlık:</span> <strong id="val-agirlik">-</strong></div>
+            </div>
+        </div>
+
+        <div class="panel-alt-bilgi">
+            <!-- Fiyat ve sepete ekleme bölümü -->
+            <div class="panel-fiyat-grubu">
+                <span class="panel-fiyat-etiket">Birim Fiyat:</span>
+                <span id="panel-fiyat" class="panel-fiyat-deger">0.00 TL</span>
+            </div>
+            <div class="adet-kontrol">
+                <!-- Adet seçici artı/eksi butonları -->
+                <button class="adet-btn" onclick="adetDegistir(-1)">-</button>
+                <span id="urun-adet">1</span>
+                <button class="adet-btn" onclick="adetDegistir(1)">+</button>
+            </div>
+            <button class="panel-sepete-ekle-btn" onclick="sepeteGonder()">Sepete Ekle</button>
+            <!-- Seçilen adette ürünü sepete ekler -->
+        </div>
+    </div>
+</div>
+
+<!-- Karartma Ekranı (Ürün paneli açıkken arka planı karartır) -->
+<div id="overlay" onclick="panelKapat()"></div>
+
+<!-- ========================================== -->
+<!-- SEPET PANELİ (Sağdan kayan) -->
+<!-- ========================================== -->
+<div id="sepet-paneli" class="detay-paneli"> 
+    <!-- Sepet içeriğini sağdan açan panel -->
+    <div class="panel-ust">
+        <!-- Sepet paneli üst başlığı ve kapatma -->
+        <h2>Sepetim</h2>
+        <button onclick="sepetiKapat()" class="kapat-btn">&times;</button>
+        <!-- Sepet panelini kapatma butonu -->
+    </div>
+    <div id="sepet-urun-listesi" class="sepet-icerik">
+        <!-- JavaScript ile doldurulan sepet ürün listesi -->
+    </div>
+    <div class="sepet-footer">
+        <!-- Sepet alt bilgi alanı -->
+        <div class="toplam-alan">
+            <span>Toplam:</span>
+            <span id="sepet-toplam-tutar">0.00 TL</span>
+        </div>
+        <button onclick="siparisTamamla()" class="ana-buton">Siparişi Tamamla</button>
+        <!-- Siparişi tamamlama butonu -->
+    </div>
+</div>
+<!-- Sepet için ayrı karartma ekranı -->
+<div id="sepet-overlay" class="overlay" onclick="sepetiKapat()"></div>
+
+<!-- ========================================== -->
+<!-- GİRİŞ YAP (LOGIN) MODAL PENCERESİ -->
+<!-- Ekranın ortasında açılan giriş formu -->
+<!-- ========================================== -->
+<div id="login-modal" class="modal">
+    <!-- Arka plan karartmalı modal pencere -->
+    <div class="modal-icerik">
+        <!-- Giriş formunun ana kutusu -->
+        <button class="modal-kapat" onclick="loginModalKapat()">&times;</button>
+        <!-- Modalı kapatma butonu -->
+        <h2>DH Market Giriş</h2>
+        <!-- Modal başlığı -->
+        
+        <div class="input-grubu">
+            <!-- Kullanıcı adı alanı -->
+            <i class="fas fa-user"></i>
+            <!-- Kullanıcı ikonu -->
+            <input type="text" id="kullanici-adi" placeholder="Kullanıcı Adı veya E-posta">
+            <!-- Kullanıcı adı giriş kutusu -->
+        </div>
+        
+        <div class="input-grubu">
+            <!-- Şifre alanı -->
+            <i class="fas fa-lock"></i>
+            <!-- Kilit ikonu -->
+            <input type="password" id="sifre" placeholder="Şifre">
+            <!-- Şifre giriş kutusu (noktalı görünür) -->
+        </div>
+        
+        <button class="giris-submit" onclick="girisYap()">Giriş Yap</button>
+        <!-- Giriş butonu; JS fonksiyonunu çağırır -->
+        
+        <div class="modal-alt">
+            <!-- Alt yardımcı bağlantılar -->
+            <a href="#" onclick="sifremiUnuttumModalAc(); return false;">Şifremi Unuttum</a>
+            <!-- Demo şifre sıfırlama bağlantısı -->
+            <span>|</span>
+            <a href="#" onclick="registerModalAc(); return false;">Hemen Üye Ol</a>
+            <!-- Kayıt modalını açan bağlantı -->
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- KAYIT OL (REGISTER) MODAL PENCERESİ -->
+<!-- Yeni kullanıcıların hesap oluşturduğu form -->
+<!-- ========================================== -->
+<div id="register-modal" class="modal">
+    <!-- Arka plan karartmalı modal pencere -->
+    <div class="modal-icerik">
+        <!-- Kayıt formunun ana kutusu -->
+        <button class="modal-kapat" onclick="registerModalKapat()">&times;</button>
+        <!-- Modalı kapatma butonu -->
+        <h2>DH Market Kayıt</h2>
+        <!-- Modal başlığı -->
+        
+        <div class="input-grubu">
+            <!-- Kullanıcı adı alanı -->
+            <i class="fas fa-user"></i>
+            <!-- Kullanıcı ikonu -->
+            <input type="text" id="kayit-kullanici-adi" placeholder="Kullanıcı Adı">
+            <!-- Kayıt için kullanıcı adı giriş kutusu -->
+        </div>
+        
+        <div class="input-grubu">
+            <!-- E-posta alanı -->
+            <i class="fas fa-envelope"></i>
+            <!-- E-posta ikonu -->
+            <input type="email" id="kayit-email" placeholder="E-posta Adresi">
+            <!-- E-posta giriş kutusu -->
+        </div>
+        
+        <div class="input-grubu">
+            <!-- Şifre alanı -->
+            <i class="fas fa-lock"></i>
+            <!-- Kilit ikonu -->
+            <input type="password" id="kayit-sifre" placeholder="Şifre">
+            <!-- Şifre giriş kutusu -->
+        </div>
+        
+        <div class="input-grubu">
+            <!-- Şifre tekrar alanı -->
+            <i class="fas fa-lock"></i>
+            <!-- Kilit ikonu -->
+            <input type="password" id="kayit-sifre-tekrar" placeholder="Şifre Tekrar">
+            <!-- Şifre tekrar giriş kutusu -->
+        </div>
+        
+        <button class="giris-submit" onclick="kayitOl()">Kayıt Ol</button>
+        <!-- Kayıt butonu; JS fonksiyonunu çağırır -->
+        
+        <div class="modal-alt">
+            <!-- Alt yardımcı bağlantılar -->
+            <span>Zaten hesabın var mı?</span>
+            <a href="#" onclick="loginModalAc(); registerModalKapat(); return false;">Giriş Yap</a>
+            <!-- Login modalına geçiş bağlantısı -->
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- ŞİFREMİ UNUTTUM (RESET PASSWORD) MODAL -->
+<!-- ========================================== -->
+<div id="sifremi-unuttum-modal" class="modal">
+    <div class="modal-icerik">
+        <button class="modal-kapat" onclick="sifremiUnuttumModalKapat()">&times;</button>
+        <h2>Şifre Değiştir</h2>
+
+        <div class="input-grubu">
+            <i class="fas fa-user"></i>
+            <input type="text" id="sifre-sifirla-kullanici" placeholder="Kullanıcı Adı">
+        </div>
+
+        <div class="input-grubu">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="sifre-sifirla-yeni" placeholder="Yeni Şifre">
+        </div>
+
+        <div class="input-grubu">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="sifre-sifirla-tekrar" placeholder="Yeni Şifre Tekrar">
+        </div>
+
+        <button class="giris-submit" onclick="sifreDegistir()">Şifremi Değiştir</button>
+
+        <div class="modal-alt">
+            <span>Hatırladın mı?</span>
+            <a href="#" onclick="loginModalAc(); sifremiUnuttumModalKapat(); return false;">Giriş Yap</a>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- ADRES EKLEME MODAL PENCERESİ -->
+<!-- ========================================== -->
+<div id="adres-modal" class="modal">
+    <div class="modal-icerik">
+        <button class="modal-kapat" onclick="adresModalKapat()">&times;</button>
+        <h2>Yeni Adres Ekle</h2>
+        <div class="input-grubu">
+            <i class="fas fa-tag"></i>
+            <input type="text" id="adres-baslik" placeholder="Adres Başlığı (örn: Ev, İş)">
+        </div>
+        <div class="input-grubu">
+            <i class="fas fa-map-marker-alt"></i>
+            <input type="text" id="adres-metni" placeholder="Açık Adres">
+        </div>
+        <div class="input-grubu">
+            <i class="fas fa-city"></i>
+            <input type="text" id="adres-sehir" placeholder="Şehir / Bölge">
+        </div>
+        <button class="giris-submit" onclick="adresKaydet()">Adresi Kaydet</button>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- ÖDEME / SİPARİŞ TAMAMLAMA MODAL PENCERESİ -->
+<!-- ========================================== -->
+<div id="odeme-modal" class="modal">
+    <div class="modal-icerik" style="max-width: 480px;">
+        <button class="modal-kapat" onclick="odemeModalKapat()">&times;</button>
+        <h2>Siparişi Tamamla</h2>
+
+        <!-- Adres Kontrolü -->
+        <div class="odeme-bolum">
+            <h4><i class="fas fa-map-marker-alt" style="color:#38bdf8;"></i> Teslimat Adresi</h4>
+            <div id="odeme-adres-alani" class="odeme-adres-kutu">
+                <p class="text-slate-400">Henüz adres seçilmemiş.</p>
+            </div>
+            <button onclick="odemeModalKapat(); adresDropdownAc();" class="odeme-adres-degistir">
+                <i class="fas fa-edit"></i> Adres Değiştir / Ekle
+            </button>
+        </div>
+
+        <!-- Ödeme Yöntemi -->
+        <div class="odeme-bolum">
+            <h4><i class="fas fa-credit-card" style="color:#38bdf8;"></i> Ödeme Yöntemi</h4>
+            <div class="odeme-yontemleri">
+                <label class="odeme-secenek">
+                    <input type="radio" name="odeme-yontemi" value="nakit" checked>
+                    <span class="odeme-kutu">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <strong>Nakit</strong>
+                        <small>Kapıda ödeme</small>
+                    </span>
+                </label>
+                <label class="odeme-secenek">
+                    <input type="radio" name="odeme-yontemi" value="pos">
+                    <span class="odeme-kutu">
+                        <i class="fas fa-credit-card"></i>
+                        <strong>Kart (POS)</strong>
+                        <small>Kapıda POS cihazı</small>
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Sepet Özeti -->
+        <div class="odeme-bolum">
+            <h4><i class="fas fa-shopping-basket" style="color:#38bdf8;"></i> Sepet Özeti</h4>
+            <div id="odeme-sepet-ozeti" class="odeme-sepet-liste">
+                <!-- JS ile doldurulacak -->
+            </div>
+            <div class="odeme-toplam-cizgi">
+                <span>Toplam:</span>
+                <span id="odeme-toplam-tutar" class="odeme-toplam-fiyat">0.00 TL</span>
+            </div>
+        </div>
+
+        <button class="giris-submit" onclick="siparisiOnayla()" id="odeme-onay-btn">
+            <i class="fas fa-check-circle"></i> Siparişi Onayla
+        </button>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- JAVASCRIPT DOSYALARI                        -->
+<!-- Sıra önemlidir: önce ortak yardımcılar,    -->
+<!-- sonra bölüm modülleri, en son başlatma.   -->
+<!-- ========================================== -->
+<script src="js/ortak/api.js"></script>            <!-- API adresi + escapeHtml -->
+<script src="js/index/10-urunler.js"></script>     <!-- Ürün listesi, arama, kategori -->
+<script src="js/index/20-urun-detay.js"></script>  <!-- Ürün detay paneli -->
+<script src="js/index/30-sepet.js"></script>        <!-- Sepet işlemleri -->
+<script src="js/index/40-auth.js"></script>        <!-- Giriş / kayıt / şifre -->
+<script src="js/index/50-adres.js"></script>       <!-- Adres yönetimi -->
+<script src="js/index/60-odeme.js"></script>       <!-- Ödeme modalı + sipariş -->
+<script src="js/index/70-kampanya.js"></script>    <!-- Kampanya kartları + slider -->
+<script src="js/index/80-arayuz.js"></script>      <!-- Kaydırma, slider, dış tıklama -->
+<script src="js/index/99-baslat.js"></script>      <!-- Uygulamayı başlatır -->
+</body>
+</html>

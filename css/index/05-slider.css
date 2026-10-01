@@ -1,0 +1,77 @@
+/**
+ * 05-slider.css - Kampanya Slaytları (Slider)
+ * ---------------------------------------------
+ * type='slide' olan kampanyaların gösterildiği yatay kayan alan.
+ * İçeriği 70-kampanya.js tarafından doldurulur.
+ * Yükleme sırası: 05
+ */
+
+/* Slider'ın çerçevesi: sabit yükseklik, taşan kısım gizli */
+.slider-alanı {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    border-radius: 15px;
+    overflow: hidden;                        /* Kenarları yuvarlak keser */
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Kaydırılan şerit: JS transform ile sola kaydırılır */
+.slider-wrapper {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    height: 100%;
+}
+
+/* Tek bir slayt: şeridin tamamını kaplar */
+.slayt {
+    min-width: 100%;
+    position: relative;
+}
+
+.slayt img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Slaytın sol alt köşesindeki başlık kutusu */
+.slayt-yazi {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    background: rgba(15, 23, 42, 0.8);
+    padding: 20px;
+    border-left: 5px solid #38bdf8;
+    border-radius: 0 10px 10px 0;
+}
+
+.slayt-yazi h2 {
+    margin: 0;
+    color: #38bdf8;
+}
+
+/* Önceki / sonraki butonları: dikeyde ortalanmış daireler */
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 15px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.slider-btn:hover {
+    background: #38bdf8;
+    color: #0f172a;
+}
+
+/* Buton konumları */
+.geri { left: 10px; }
+.ileri { right: 10px; }

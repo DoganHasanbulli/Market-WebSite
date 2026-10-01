@@ -1,0 +1,24 @@
+/**
+ * 01-temel.css - Sayfa Temel Stilleri
+ * -------------------------------------
+ * Tüm ana sayfa stillerinin dayandığı temel ayarlar.
+ * Yükleme sırası: 01 (en önce yüklenir)
+ */
+
+/* Sayfa genelinde yumuşak kaydırma (scrollToSection ile birlikte çalışır) */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Sayfa iskeleti: navbar → içerik → footer olarak dikey düzen */
+body {
+    background-color: #0f172a;                /* Koyu lacivert arka plan */
+    color: #f8fafc;                          /* Açık gri yazı rengi */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;                     /* İçeriği yatayda ortalar */
+    min-height: 100vh;
+}

@@ -1,0 +1,143 @@
+/**
+ * 02-navbar.css - Üst Navigasyon Çubuğu
+ * --------------------------------------
+ * Sabit üst menü: logo, adres seçici (11-adres.css), arama kutusu,
+ * sağ linkler ve sepet ikonu.
+ * Yükleme sırası: 02
+ */
+
+/* Çubuk kendisi: sayfa kaydırılınca en üstte sabit kalır */
+.navbar {
+    background-color: #1e293b;                /* Kartlarla aynı lacivert tonu */
+    padding: 15px 0;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;                           /* Panellerin altında kalsın */
+    border-bottom: 2px solid #38bdf8;         /* Altına ince mavi çizgi */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Çubuk içindeki içerik kutusu: sola logo, ortaya arama, sağa linkler */
+.nav-kutusu {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+/* Site logosu */
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #f8fafc;
+    letter-spacing: 1px;
+}
+
+.logo span {
+    color: #38bdf8;                          /* "MARKET" kısmını mavi yapar */
+}
+
+/* ------------------------------------------------------------
+ * Arama kutusu
+ * Not: Eski dosyada bu kural iki ayrı yerde tanımlıydı; ikisi de
+ * burada tek kuralda birleştirildi (etkisi aynı kalır).
+ * ------------------------------------------------------------ */
+.arama-kutusu {
+    position: relative;                      /* Büyüteç ikonunun konumu için */
+    display: flex;
+    align-items: center;
+    flex: 0 1 400px;                        /* Esnek genişlik (üst sınır 400px) */
+    width: 100%;
+    max-width: 450px;
+    margin: 0 20px;
+}
+
+/* Metin girişi (ikonun sağından başlar: solda 45px boşluk) */
+#arama-cubugu {
+    width: 100%;
+    padding: 10px 15px 10px 45px;
+    background-color: #1e293b;
+    border: 2px solid transparent;           /* Odaklanınca mavi olsun */
+    border-radius: 12px;
+    color: #f8fafc;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Büyüteç ikonu: input'un soluna yerleşir, tıklamayı geçirmez */
+.arama-ikon {
+    position: absolute;
+    left: 15px;
+    color: #94a3b8;
+    font-size: 16px;
+    transition: color 0.3s ease;
+    pointer-events: none;
+}
+
+/* Input odaklandığında arka plan koyulaşır, kenarlık mavileşir */
+#arama-cubugu:focus {
+    background-color: #0f172a;
+    border-color: #38bdf8;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+}
+
+/* Odaklanınca ikon rengi de mavileşir */
+#arama-cubugu:focus + .arama-ikon {
+    color: #38bdf8;
+}
+
+/* Fare ile üzerine gelindiğinde hafif açılır */
+#arama-cubugu:hover {
+    background-color: #2d3748;
+}
+
+/* İpucu (placeholder) metni */
+#arama-cubugu::placeholder {
+    color: #64748b;
+    font-weight: 400;
+}
+
+/* ------------------------------------------------------------
+ * Sağ linkler (Ana Sayfa, Kampanyalar, Giriş Yap)
+ * ------------------------------------------------------------ */
+.nav-linkler {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-linkler a {
+    color: #f8fafc;
+    text-decoration: none;
+    font-size: 1.05rem;
+    transition: color 0.2s;
+}
+
+.nav-linkler a:hover {
+    color: #38bdf8;
+}
+
+/* Sepet ikonu: tıklanabilir kutu + üst köşede adet rozeti */
+.sepet-ikon-kutusu {
+    cursor: pointer;
+    position: relative;
+    background-color: #334155;
+    padding: 8px 12px;
+    border-radius: 20px;
+}
+
+.sepet-ikon-kutusu span {
+    background-color: #4ade80;
+    color: #0f172a;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 50%;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-weight: bold;
+}

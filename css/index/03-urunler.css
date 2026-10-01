@@ -1,0 +1,122 @@
+/**
+ * 03-urunler.css - Ürün Izgarası ve Ürün Kartları
+ * -----------------------------------------------
+ * Sağ içerik sütununda yan yana dizilen ürün kartları:
+ * kap (flexbox), kart, kart içi görsel/başlık/fiyat ve "Sepete Ekle" butonu.
+ * Yükleme sırası: 03
+ */
+
+/* Ürünlerin yan yana dizildiği esnek kap */
+.urunler-kutusu {
+    display: flex;
+    flex-direction: row;                     /* Kartları yan yana dizer */
+    flex-wrap: wrap;                         /* Ekran dolunca alt satıra geçer */
+    justify-content: center;
+    gap: 25px;                               /* Kartlar arası boşluk */
+    width: 90%;
+    max-width: 1200px;
+}
+
+/* Tekil ürün kartı */
+.urun-karti {
+    background-color: #1e293b;
+    width: 220px;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #334155;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;          /* İçerikleri kart boyunca yayar */
+    min-height: 380px;                       /* Tüm kartları eşit yükseklikte */
+    cursor: pointer;                         /* Tıklanabilir olduğunu belli eder */
+    transition: all 0.3s ease-in-out;
+}
+
+/* Fare ile üzerine gelince kart yukarı kalkar */
+.urun-karti:hover {
+    transform: translateY(-10px);
+    border-color: #38bdf8;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Kart içindeki ürün görseli */
+.urun-karti img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;                       /* Görseli bozmadan kutuya sığdırır */
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Ürün adı */
+.urun-karti h3,
+.urun-karti h2 {
+    margin: 10px 0;
+    font-size: 1.2rem;
+    color: #f8fafc;
+}
+
+/* Stok durumu: yeşil "Stokta Var" */
+.stok-durum {
+    font-size: 0.8rem;
+    color: #4ade80;
+    font-weight: 600;
+    margin: 0.3rem 0;
+}
+
+/* Stok durumu: kırmızı "Stokta Yok" (10-urunler.js bu sınıfı ekler) */
+.stok-durum.stok-yok {
+    color: #ef4444;
+}
+
+/* Fiyat yazısı */
+.fiyat {
+    display: block;                          /* Alt satıra geçmesi için */
+    font-size: 1.3rem;
+    color: #4ade80;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+/* "Sepete Ekle" butonu: kartın tamamını kaplar */
+.sepete-ekle {
+    background-color: #38bdf8;
+    color: #0f172a;
+    border: none;
+    padding: 12px 0;
+    width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.sepete-ekle:hover {
+    background-color: #7dd3fc;               /* Mavinin açık tonu */
+}
+
+.sepete-ekle:active {
+    transform: scale(0.95);                  /* Tıklama basılma efekti */
+}
+
+/* Stokta yokken buton pasif görünür */
+.sepete-ekle:disabled {
+    background-color: #334155;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+.sepete-ekle:disabled:hover {
+    background-color: #334155;
+}
+
+/* Boş sonuç / hata mesajı kutusu */
+.arama-yok {
+    color: #38bdf8;
+    grid-column: 1 / -1;                     /* Grid/Flex yapısında tüm satırı kaplar */
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2rem;
+    font-weight: 300;
+}

@@ -1,0 +1,134 @@
+/**
+ * 12-odeme.css - Ödeme Modalı İçi Bileşenler
+ * --------------------------------------------
+ * Modal iskeleti 09-modal.css'de; burada yalnızca ödeme adımlarının
+ * (adres, ödeme yöntemi, sepet özeti) stilleri vardır.
+ * Yükleme sırası: 12
+ */
+
+/* Ödeme adımlarını saran blok (adres / yöntem / özet) */
+.odeme-bolum {
+    margin-bottom: 20px;
+    text-align: left;                        /* Özet içeriği sola yaslanır */
+}
+
+.odeme-bolum h4 {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+/* Seçili teslimat adresinin kutusu */
+.odeme-adres-kutu {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    line-height: 1.5;
+}
+
+/* "Adres Değiştir / Ekle" bağlantı butonu */
+.odeme-adres-degistir {
+    margin-top: 8px;
+    background: transparent;
+    border: none;
+    color: #38bdf8;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Ödeme yöntemi seçenekleri (iki sütun) */
+.odeme-yontemleri {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.odeme-secenek {
+    cursor: pointer;
+}
+
+/* Radio butonu gizlenir; yerine kutu çizilir */
+.odeme-secenek input {
+    display: none;
+}
+
+/* Seçenek kutusu (ikon + başlık + açıklama) */
+.odeme-kutu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: #0f172a;
+    border: 2px solid #334155;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    transition: all 0.3s;
+    color: #e2e8f0;
+}
+
+/* Seçili ödeme yöntemi */
+.odeme-secenek input:checked + .odeme-kutu {
+    border-color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+}
+
+.odeme-kutu i {
+    font-size: 1.4rem;
+    color: #38bdf8;
+}
+
+.odeme-kutu strong {
+    font-size: 0.9rem;
+}
+
+.odeme-kutu small {
+    font-size: 0.7rem;
+    color: #64748b;
+}
+
+/* Sepet özeti listesi (kaydırılabilir) */
+.odeme-sepet-liste {
+    max-height: 120px;
+    overflow-y: auto;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.8rem;
+}
+
+.odeme-sepet-urun {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid #334155;
+    color: #cbd5e1;
+}
+
+.odeme-sepet-urun:last-child {
+    border-bottom: none;
+}
+
+/* Toplam tutar satırı */
+.odeme-toplam-cizgi {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #334155;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #f8fafc;
+}
+
+.odeme-toplam-fiyat {
+    color: #38bdf8;
+    font-size: 1.15rem;
+}

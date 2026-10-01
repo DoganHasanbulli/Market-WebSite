@@ -1,0 +1,137 @@
+/**
+ * 10-kampanya.css - Kampanya Bölümü
+ * -----------------------------------
+ * type='card' olan kampanyaların gösterildiği ızgara alanı.
+ * İçerik 70-kampanya.js tarafından doldurulur.
+ * Yükleme sırası: 10
+ */
+
+.kampanyalar-bolumu {
+    margin-bottom: 40px;
+}
+
+/* Bölüm başlığı: solunda mavi kalın çizgi */
+.bolum-baslik {
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: #f8fafc;
+    border-left: 5px solid #38bdf8;
+    padding-left: 15px;
+}
+
+/* Duyarlı kart ızgarası (ekran genişliğine göre sütun sayısı değişir) */
+.kampanya-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+}
+
+/* Tek kampanya kartı */
+.kampanya-karti {
+    background-color: #1e293b;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #334155;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.kampanya-karti:hover {
+    transform: translateY(-8px);
+    border-color: #38bdf8;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Kartın üst görseli (arka plan görseli olarak basılır) */
+.kampanya-resim {
+    width: 100%;
+    height: 160px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* Görselin alt kısmındaki gradyan (metne kontrast sağlar) */
+.kampanya-resim::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to top, #1e293b, transparent);
+}
+
+/* Kartın metin bölümü */
+.kampanya-icerik {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
+}
+
+/* Kampanya etiketi (varsayılan kırmızı) */
+.kampanya-etiket {
+    display: inline-block;
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+/* Admin panelinden seçilen etiket renkleri (admin.html'deki option değerleri) */
+.etiket-mavi { background: #38bdf8; }
+.etiket-yesil { background: #22c55e; }
+.etiket-turuncu { background: #f97316; }
+.etiket-mor { background: #8b5cf6; }
+
+.kampanya-icerik h3 {
+    margin: 0 0 10px 0;
+    color: #f8fafc;
+    font-size: 1.15rem;
+}
+
+.kampanya-icerik p {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+/* Kartın alt satırı: tarih + Keşfet butonu */
+.kampanya-alt {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid #334155;
+}
+
+.kampanya-tarih {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.kampanya-btn {
+    background: transparent;
+    border: 1px solid #38bdf8;
+    color: #38bdf8;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.kampanya-btn:hover {
+    background: #38bdf8;
+    color: #0f172a;
+}

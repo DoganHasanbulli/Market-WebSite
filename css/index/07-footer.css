@@ -1,0 +1,80 @@
+/**
+ * 07-footer.css - Site Alt Bilgisi
+ * ---------------------------------
+ * Sayfa sonundaki hakkında / hızlı linkler / iletişim sütunları.
+ * Yükleme sırası: 07
+ */
+
+.site-footer {
+    background-color: #1e293b;                /* Navbar ve kartlarla aynı ton */
+    color: #f8fafc;
+    padding: 50px 0 20px 0;
+    margin-top: 50px;                         /* Ürünlerle arasına boşluk */
+    border-top: 2px solid #38bdf8;             /* Üste mavi ince çizgi */
+    width: 100%;
+}
+
+/* Footer sütunlarını yayar */
+.footer-kutusu {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    padding: 0 20px;
+    gap: 40px;
+}
+
+/* Tek sütun */
+.footer-bolum {
+    flex: 1 1 200px;
+    margin-bottom: 30px;
+    max-width: 350px;
+}
+
+.footer-bolum h3,
+.footer-bolum h4 {
+    color: #38bdf8;
+    margin-bottom: 20px;
+}
+
+.footer-bolum h3 span {
+    color: #f8fafc;
+}
+
+.footer-bolum p {
+    color: #94a3b8;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    padding-right: 20px;
+}
+
+/* Hızlı linkler listesi */
+.footer-bolum ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-bolum ul li {
+    margin-bottom: 10px;
+}
+
+.footer-bolum ul li a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-bolum ul li a:hover {
+    color: #38bdf8;
+}
+
+/* En alt telif hakkı satırı */
+.footer-alt {
+    text-align: center;
+    border-top: 1px solid #334155;
+    margin-top: 30px;
+    padding-top: 20px;
+    color: #64748b;
+    font-size: 0.8rem;
+}

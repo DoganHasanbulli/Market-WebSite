@@ -1,0 +1,142 @@
+/**
+ * 09-modal.css - Ortak Modal Pencereleri ve Formlar
+ * ---------------------------------------------------
+ * Beş modal da (Giriş, Kayıt, Şifremi Unuttum, Adres Ekleme, Ödeme)
+ * aynı iskeleti kullanır: tam ekran karartma + ortada içerik kutusu.
+ * Yükleme sırası: 09
+ */
+
+/* Tüm modaller başlangıçta gizli; JS display:block ile açar */
+#login-modal,
+#register-modal,
+#sifremi-unuttum-modal,
+#adres-modal,
+#odeme-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;                           /* Sayfadaki her şeyin en üstünde */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);    /* Arkayı karartır */
+    backdrop-filter: blur(8px);              /* Arkadaki marketi bulanıklaştırır */
+}
+
+/* Modalın ortadaki içerik kutusu */
+.modal-icerik {
+    background: #1e293b;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 20px;
+    width: 350px;
+    border: 1px solid #38bdf8;
+    text-align: center;
+    color: white;
+}
+
+/* ------------------------------------------------------------
+ * Form alanları (ikon + input)
+ * ------------------------------------------------------------ */
+.input-grubu {
+    position: relative;                      /* İkonun input'un içine girmesi için */
+    margin-bottom: 20px;
+}
+
+/* Alanın sol içindeki ikon */
+.input-grubu i {
+    position: absolute;
+    left: 15px;
+    top: 12px;
+    color: #38bdf8;
+}
+
+/* İkonun sağındaki metin girişi */
+.input-grubu input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    color: white;
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* Modalın sağ üst köşesindeki kapatma butonu */
+.modal-kapat {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.modal-kapat:hover {
+    color: #38bdf8;
+}
+
+/* ------------------------------------------------------------
+ * Butonlar
+ * ------------------------------------------------------------ */
+
+/* Navbar'daki "Giriş Yap" butonu */
+.giris-btn {
+    background-color: #38bdf8;
+    color: #0f172a;
+    padding: 8px 18px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.giris-btn:hover {
+    background-color: #7dd3fc;
+    transform: scale(1.05);
+}
+
+/* Modal içindeki birincil gönderim butonu (Giriş / Kayıt / Sipariş) */
+.giris-submit {
+    width: 100%;
+    padding: 14px;
+    background: #38bdf8;
+    color: #0f172a;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.giris-submit:hover {
+    background: #7dd3fc;
+    transform: scale(1.02);
+}
+
+/* ------------------------------------------------------------
+ * Modal alt bağlantı satırı
+ * ------------------------------------------------------------ */
+.modal-alt {
+    margin-top: 20px;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.modal-alt a {
+    color: #38bdf8;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.modal-alt a:hover {
+    color: #7dd3fc;
+}

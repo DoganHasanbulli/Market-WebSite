@@ -1,0 +1,55 @@
+/**
+ * 04-icerik-duzeni.css - Ana İçerik Alanı ve Kategori Menüsü
+ * ---------------------------------------------------------
+ * Sayfanın orta bölümünü iki sütuna böler:
+ *   Sol  : Yapışkan (sticky) kategori filtre menüsü
+ *   Sağ  : Slider + kampanyalar + ürün ızgarası
+ * Yükleme sırası: 04
+ */
+
+/* Ana iki sütunlu düzen */
+.ana-icerik-alani {
+    display: flex;
+    max-width: 1200px;
+    margin: 30px auto;
+    gap: 30px;
+    padding: 0 20px;
+    align-items: flex-start;                  /* Sütunlar farklı yükseklikte olabilir */
+}
+
+/* Sol sütun: kategori filtre menüsü (sayfa kaydırılınca yerinde kalır) */
+.kategori-kutusu {
+    flex: 0 0 200px;                         /* Sabit 200px genişlik */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: #1e293b;
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid #334155;
+    position: sticky;
+    top: 100px;                              /* Navbar'ın altında kalacak şekilde */
+}
+
+/* Kategori butonu */
+.kat-btn {
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #f8fafc;
+    cursor: pointer;
+    font-weight: 600;
+    text-align: left;
+    transition: all 0.3s;
+    font-size: 1rem;
+}
+
+/* Üzerine gelince ve seçili (aktif) olduğunda */
+.kat-btn:hover,
+.kat-btn.aktif {
+    background: #38bdf8;
+    color: #0f172a;
+    border-color: #38bdf8;
+    transform: translateX(5px);              /* Sağa doğru küçük kayma efekti */
+}

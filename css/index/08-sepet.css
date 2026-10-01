@@ -1,0 +1,88 @@
+/**
+ * 08-sepet.css - Sepet Paneli İçi Bileşenler
+ * -------------------------------------------
+ * Panelin kendisi 06-urun-paneli.css içindeki .detay-paneli ile açılır.
+ * Burada yalnızca panelin içindeki liste, satır ve footer stilleri vardır.
+ * Yükleme sırası: 08
+ */
+
+/* Kaydırılabilir ürün listesi alanı */
+.sepet-icerik {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+/* Sepetteki tek ürün satırı */
+.sepet-item {
+    display: flex;
+    align-items: center;
+    background: #1e293b;
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #334155;
+}
+
+/* Görsel ile adet butonları arasındaki esnek alan */
+.sepet-item-bilgi {
+    flex: 1;
+    margin-left: 12px;
+}
+
+.sepet-item-bilgi h4 {
+    font-size: 14px;
+    color: #f8fafc;
+    margin: 0;
+}
+
+.sepet-item-bilgi span {
+    color: #38bdf8;
+    font-weight: bold;
+}
+
+/* Satır içindeki küçük adet kontrolü */
+.sepet-item .adet-kontrol {
+    border-radius: 20px;
+    padding: 5px;
+    margin-bottom: 0;
+}
+
+.sepet-item .adet-btn {
+    background: none;
+    border: none;
+    color: #4ade80;
+}
+
+/* Panelin alt kısmı: toplam tutar + sipariş butonu */
+.sepet-footer {
+    padding: 20px;
+    background: #1e293b;
+    border-top: 1px solid #334155;
+}
+
+.toplam-alan {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: bold;
+    color: #f8fafc;
+    margin-bottom: 15px;
+}
+
+/* "Siparişi Tamamla" butonu (yeşil) */
+.ana-buton {
+    width: 100%;
+    padding: 15px;
+    background: #4ade80;
+    color: #0f172a;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.ana-buton:hover {
+    transform: scale(1.02);
+}

@@ -1,0 +1,132 @@
+# ============================================================
+# DH Market - Git Ignore
+# Flask (Python) + Vanilla JS/HTML/CSS backendli proje
+# ============================================================
+
+# ------------------------------------------------------------
+# Python / Flask
+# ------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Sanal ortamlar
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Paket / derleme çıktıları
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Test ve tip kontrol araçlarının önbellekleri
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# ------------------------------------------------------------
+# Veritabanı (SQLite)
+# Uygulama ilk çalıştırmada otomatik oluşturur (database.py:init_db)
+# ------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+*-journal
+*-wal
+*-shm
+
+# Veritabanı yedekleri
+*.db.bak
+dump.sql
+*.dump
+
+# ------------------------------------------------------------
+# Ortam değişkenleri ve gizli anahtarlar
+# config.py: GROQ_API_KEY, SECRET_KEY, DATABASE_FILE, PORT
+# Örnek için .env.example dosyası kullanılmalıdır.
+# ------------------------------------------------------------
+.env
+.env.*
+!.env.example
+secrets.json
+config.local.py
+local_settings.py
+
+# ------------------------------------------------------------
+# Node.js (tests/smoke-test.js ve olası npm araçları)
+# ------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json.bak
+
+# ------------------------------------------------------------
+# Derleme / paketlenmiş çıktılar
+# ------------------------------------------------------------
+*.min.js
+*.min.css
+*.min.map
+*.map
+bundle.js
+bundle.css
+dist/
+public/build/
+
+# ------------------------------------------------------------
+# Log dosyaları
+# ------------------------------------------------------------
+*.log
+logs/
+pip-log.txt
+debug.log
+
+# ------------------------------------------------------------
+# Geçici dosyalar ve yedekler
+# ------------------------------------------------------------
+*.tmp
+*.temp
+*.bak
+*.orig
+*~
+.cache
+
+# ------------------------------------------------------------
+# Editör / IDE ayarları
+# ------------------------------------------------------------
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+*~
+.history/
+
+# ------------------------------------------------------------
+# İşletim sistemi dosyaları
+# ------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*.lnk
